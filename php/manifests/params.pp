@@ -31,6 +31,12 @@ class php::params  {
         default => "/etc/php.ini",
     }
 
+    $configfile_cli = $operatingsystem ? {
+        ubuntu  => "/etc/php5/cli/php.ini",
+        debian  => "/etc/php5/cli/php.ini",
+        default => "/etc/php.ini",
+    }
+
     $configfile_mode = $operatingsystem ? {
         default => "644",
     }
