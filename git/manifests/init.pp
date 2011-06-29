@@ -1,15 +1,20 @@
+# Class: git
+#
+# Installs Git 
+#
+# Usage:
+# include git
+#
 class git {
 
-	$git_basedir="/srv/git"
-        
+  include git::params
+  
 	package { "git":
-                name => $operatingsystem ? {
-                        default => "git",
-                        },
-                ensure => present,
-        }
-
+    name => $git::params::packagename,
+    ensure => present,
+  }
 }
 
 import "classes/*.pp"
 import "definitions/*.pp"
+
