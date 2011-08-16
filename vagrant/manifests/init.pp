@@ -2,8 +2,7 @@
 # Class: vagrant
 #
 # Manages vagrant.
-# Include it to install and run vagrant
-# It defines package, service, main configuration file.
+# Include it to install vagrant
 #
 # Usage:
 # include vagrant
@@ -19,27 +18,18 @@ class vagrant {
         ensure => present,
         provider => gem,
     }
+    # Note: On Centos/Rhel 6 you need installed ruby-devel and gcc
 
-#    service { "vagrant":
-#        name       => "${vagrant::params::servicename}",
-#        ensure     => running,
-#        enable     => true,
-#        hasrestart => true,
-#        hasstatus  => "${vagrant::params::hasstatus}",
-#        pattern    => "${vagrant::params::processname}",
-#        require    => Package["vagrant"],
-#        subscribe  => File["vagrant.conf"],
-#    }
+    file { "vagrant_addpath":
+        path    => "/etc/profile.d/vagrant.sh", 
+        mode    => 755,
+        content => "#!/bin/sh\nexport PATH=\$PATH:${vagrant::params::binpath}\n",
+    }
 
-    file { "vagrant.conf":
-        path    => "${vagrant::params::configfile}",
-        mode    => "${vagrant::params::configfile_mode}",
-        owner   => "${vagrant::params::configfile_owner}",
-        group   => "${vagrant::params::configfile_group}",
-        ensure  => present,
-        require => Package["vagrant"],
-#        notify  => Service["vagrant"],
-        # content => template("vagrant/vagrant.conf.erb"),
+    file { "vagrant_basedir":
+        path    => "${vagrant::params::basedir}",
+        mode    => 755,
+        ensure  => directory,
     }
 
     # Include OS specific subclasses, if necessary
@@ -52,9 +42,6 @@ class vagrant {
 
     # Include extended classes, if relevant variables are defined 
     if $puppi == "yes" { include vagrant::puppi }
-    if $backup == "yes" { include vagrant::backup }
-    if $monitor == "yes" { include vagrant::monitor }
-    if $firewall == "yes" { include vagrant::firewall }
 
     # Include debug class is debugging is enabled ($debug=yes)
     if ( $debug == "yes" ) or ( $debug == true ) { include vagrant::debug }

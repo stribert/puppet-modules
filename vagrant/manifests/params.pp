@@ -1,110 +1,35 @@
 # Class: vagrant::params
 #
-# Sets internal variables and defaults for vagrant module
-# This class is loaded in all the classes that use the values set here 
-#
 class vagrant::params  {
 
 ## DEFAULTS FOR VARIABLES USERS CAN SET
-# (Here are set the defaults, provide your custom variables externally)
-# (The default used is in the line with '')
+    $basedir = $vagrant_basedir ? {
+        ''      => "/opt/vagrant",
+        default => "${vagrant_basedir}",
+    }
 
-## Example: Full hostname of vagrant server
-#    $server = $vagrant_server ? {
-#        ''      => "vagrant",
-#        default => "${vagrant_server}",
-#    }
-
-
-## EXTRA MODULE INTERNAL VARIABLES
-#(add here module specific internal variables)
-
+    $binpath = $operatingsystem ? {
+        default => "/var/lib/gems/1.8/bin",
+    }
 
 
 ## MODULE INTERNAL VARIABLES
-# (Modify to adapt to unsupported OSes)
-
     $packagename = $operatingsystem ? {
-        solaris => "CSWvagrant",
-        debian  => "vagrant",
-        ubuntu  => "vagrant",
-        default => "vagrant",
-    }
-
-    $servicename = $operatingsystem ? {
-        debian  => "vagrant",
-        ubuntu  => "vagrant",
         default => "vagrant",
     }
 
     $processname = $operatingsystem ? {
         default => "vagrant",
     }
-
-    $hasstatus = $operatingsystem ? {
-        debian  => false,
-        ubuntu  => false,
-        default => true,
-    }
-
-    $configfile = $operatingsystem ? {
-        freebsd => "/usr/local/etc/vagrant/vagrant.conf",
-        default => "/etc/vagrant/vagrant.conf",
-    }
-
-    $configfile_mode = $operatingsystem ? {
-        default => "644",
-    }
-
-    $configfile_owner = $operatingsystem ? {
-        default => "root",
-    }
-
-    $configfile_group = $operatingsystem ? {
-        default => "root",
-    }
-
-    $configdir = $operatingsystem ? {
-        default => "/etc/vagrant",
-    }
-
-    $initconfigfile = $operatingsystem ? {
-        debian  => "/etc/default/vagrant",
-        ubuntu  => "/etc/default/vagrant",
-        default => "/etc/sysconfig/vagrant",
-    }
     
-    # Used by monitor class
-    $pidfile = $operatingsystem ? {
-        default => "/var/run/vagrantd.pid",
-    }
-
-    # Used by backup class
-    $datadir = $operatingsystem ? {
-        default => "/var/lib/vagrant",
-    }
-
     # Used by backup class - Provide the file name, if there's no dedicated dir
     $logdir = $operatingsystem ? {
         default => "/var/log/vagrant",
     }
 
-    # Used by monitor and firewall class
-    # If you need to define additional ports, call them $protocol1/$port1 and add the relevant
-    # parts in firewall.pp and monitor.pp
-    $protocol = "tcp"
-    $port = "80"
-    
 
 
 ## DEFAULTS FOR MONITOR CLASS
-# These are settings that influence the (optional) vagrant::monitor class
-# You can define these variables or leave the defaults
-# The apparently complex variables assignements below follow this logic:
-# - If no user variable is set, a reasonable default is used
-# - If the user has set a host-wide variable (ex: $monitor_target ) that one is set
-# - The host-wide variable can be overriden by a module specific one (ex: $vagrant_monitor_target)
-
     # How the monitor server refers to the monitor target 
     $monitor_target_real = $vagrant_monitor_target ? {
         ''      => $monitor_target ? {
@@ -132,7 +57,7 @@ class vagrant::params  {
     # If vagrant port monitoring is enabled 
     $monitor_port_enable = $vagrant_monitor_port ? {
         ''      => $monitor_port ? {
-           ''      => true,
+           ''      => false,
            default => $monitor_port,
         },
         default => $vagrant_monitor_port,
@@ -150,7 +75,7 @@ class vagrant::params  {
     # If vagrant process monitoring is enabled 
     $monitor_process_enable = $vagrant_monitor_process ? {
         ''      => $monitor_process ? {
-           ''      => true,
+           ''      => false,
            default => $monitor_process,
         },
         default => $vagrant_monitor_process,
@@ -187,7 +112,7 @@ class vagrant::params  {
     # If vagrant data have to be backed up
     $backup_data_enable = $vagrant_backup_data ? {
         ''      => $backup_data ? {
-           ''      => true,
+           ''      => false,
            default => $backup_data,
         },
         default => $vagrant_backup_data,
@@ -196,7 +121,7 @@ class vagrant::params  {
     # If vagrant logs have to be backed up
     $backup_log_enable = $vagrant_backup_log ? {
         ''      => $backup_log ? {
-           ''      => true,
+           ''      => false,
            default => $backup_log,
         },
         default => $vagrant_backup_log,
@@ -228,7 +153,7 @@ class vagrant::params  {
     # If firewall filter is enabled
     $firewall_enable = $vagrant_firewall_enable ? {
         ''      => $firewall_enable ? {
-           ''      => true,
+           ''      => false,
            default => $firewall_enable,
         },
         default => $vagrant_firewall_enable,

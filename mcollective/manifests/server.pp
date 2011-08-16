@@ -53,7 +53,8 @@ class mcollective::server {
         mode     => 400,
         loglevel => debug,  # this is needed to avoid it being logged and reported on every run
         # avoid including highly-dynamic facts as they will cause unnecessary template writes
-        content  => inline_template("<%= scope.to_hash.reject { |k,v| k.to_s =~ /(uptime.*|path|timestamp|free|.*password.*|.*psk.*|.*key)/ }.to_yaml %>")
+        content  => inline_template("<%= scope.to_hash.reject { |k,v| k.to_s =~ /(uptime.*|path|timestamp|free|.*password.*|.*psk.*|.*key)/ }.to_yaml %>"),
+        require => Package["mcollective"],
     }
 
     # Include Plugins
@@ -61,6 +62,8 @@ class mcollective::server {
 
     # Include OS specific subclasses, if necessary
     case $operatingsystem {
+        debian: { include apt::repo::puppetlabs }
+        ubuntu: { include apt::repo::puppetlabs }
         default: { }
     }
 
@@ -71,13 +74,6 @@ class mcollective::server {
     if $firewall == "yes" { include mcollective::firewall }
 
     # Include project specific class if $my_project is set
-    # The extra project class is by default looked in mcollective module 
-    # If $my_project_onmodule == yes it's looked in your project module
-    if $my_project { 
-        case $my_project_onmodule {
-            yes,true: { include "${my_project}::mcollective::server" }
-            default: { include "mcollective::${my_project}::server" }
-        }
-    }
+    if $my_project { include "mcollective::${my_project}::server" }
 
 }

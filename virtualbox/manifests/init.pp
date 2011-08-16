@@ -13,13 +13,15 @@ class virtualbox {
     # Load the variables used in this module. Check the params.pp file 
     require virtualbox::params
 
+    # Virtualbox is installed with official repositories
+    require virtualbox::repo
+
     # Basic Package - Service - Configuration file management
-# Reenable direct package management when the VirtualBox package name will
-# have decent naming (without full version in the package name)
-#    package { "virtualbox":
-#        name   => "${virtualbox::params::packagename}",
-#        ensure => present,
-#    }
+    package { "virtualbox":
+        name    => "${virtualbox::params::packagename}",
+        ensure  => present,
+        require => Class["virtualbox::repo"],
+    }
 
     service { "virtualbox":
         name       => "${virtualbox::params::servicename}",
@@ -28,7 +30,7 @@ class virtualbox {
         hasrestart => true,
         hasstatus  => "${virtualbox::params::hasstatus}",
         pattern    => "${virtualbox::params::processname}",
-#        require    => Package["virtualbox"],
+        require    => Package["virtualbox"],
         subscribe  => File["virtualbox.conf"],
     }
 
@@ -39,7 +41,7 @@ class virtualbox {
         hasrestart => true,
         hasstatus  => false,
         pattern    => "${virtualbox::params::processname_web}",
-#        require    => Package["virtualbox"],
+        require    => Package["virtualbox"],
         subscribe  => File["virtualbox.conf"],
     }
 
@@ -52,11 +54,6 @@ class virtualbox {
 #        require => Package["virtualbox"],
         notify  => Service["virtualbox"],
         # content => template("virtualbox/virtualbox.conf.erb"),
-    }
-
-    # Include OS specific subclasses, if necessary
-    case $operatingsystem {
-        default: { }
     }
 
     # Include project specific class if $my_project is set
