@@ -13,6 +13,9 @@ class mysql {
     # Load the variables used in this module. Check the params.pp file 
     require mysql::params
 
+    # Set root password
+    if "${mysql::params::root_password}" != "" { include mysql::password }
+
     # Basic Package - Service - Configuration file management
     package { "mysql":
         name   => "${mysql::params::packagename}",
