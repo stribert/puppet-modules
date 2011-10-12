@@ -60,13 +60,6 @@ class mcollective::server {
     # Include Plugins
      if ( $mcollective::params::plugins != "no") { include mcollective::plugins }
 
-    # Include OS specific subclasses, if necessary
-    case $operatingsystem {
-        debian: { include apt::repo::puppetlabs }
-        ubuntu: { include apt::repo::puppetlabs }
-        default: { }
-    }
-
     # Include extended classes, if desired
     if $puppi == "yes" { include mcollective::puppi }
     if $backup == "yes" { include mcollective::backup }

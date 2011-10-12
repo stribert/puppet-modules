@@ -16,6 +16,7 @@ class users::ldap {
 
 # Load the variables used in this module. Check the params.pp file
     include users::params
+    require common
 
     $users_ldap_servers = $users::params::ldap_servers
     $users_ldap_basedn = $users::params::ldap_basedn
@@ -54,8 +55,7 @@ class users::ldap {
         path    => $operatingsystem ? {
             debian => "/etc/ldap/ldap.conf",
             ubuntu => "/etc/ldap/ldap.conf",
-            redhat => "/etc/openldap/ldap.conf",
-            centos => "/etc/openldap/ldap.conf",
+            /(?i:CentOS|RedHat|Scientific)/ => "/etc/openldap/ldap.conf",
         },
         mode    => "644",
         owner   => "root",
@@ -90,8 +90,8 @@ class users::ldap {
              package { "libnss-ldap": ensure => present }
              package { "ldap-utils": ensure => present }
 
-             case $lsbdistcodename {
-                 lenny: {
+             case $common::osver {
+                 5: {
                      # Debian 5, by default, uses a separated file for pam ldap settings 
                      file { "pam_ldap.conf":
                          path    => "/etc/pam_ldap.conf",
@@ -103,10 +103,9 @@ class users::ldap {
                      }
                  }
              }
-
         }
         redhat,centos: {
-             package { "nss_ldap": ensure => present }
+             if $common::osver != 6 { package { "nss_ldap": ensure => present } }
         }
     }
 
